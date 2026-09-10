@@ -1,5 +1,5 @@
 name: waste2taste
-description: "A new Flutter project."
+description: "Waste2Taste is a Flutter food rescue and surplus food marketplace application for reducing food waste."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
