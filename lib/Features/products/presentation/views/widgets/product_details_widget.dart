@@ -1,0 +1,34 @@
+import 'package:flutter/material.dart';
+import 'package:waste2taste/Features/home/domain/entities/product_entity.dart';
+import 'package:waste2taste/Features/products/presentation/views/widgets/reviews_section_bloc_builder.dart';
+import 'description_section.dart';
+import 'location_section.dart';
+import 'package:waste2taste/Features/home/presentation/views/widgets/price_section.dart';
+import 'package:waste2taste/Features/home/presentation/views/widgets/product_info_section.dart';
+
+class ProductDetailsWidget extends StatelessWidget {
+  const ProductDetailsWidget({super.key, required this.product});
+  final ProductEntity product;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 80),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ProductInfoSection(product: product),
+          const SizedBox(height: 16),
+          ReviewsSectionBlocBuilder(product: product),
+          const SizedBox(height: 24),
+          DescriptionSection(description: product.description),
+          const SizedBox(height: 24),
+          PriceSection(product: product),
+          const SizedBox(height: 24),
+          LocationSection(product: product),
+        ],
+      ),
+    );
+  }
+}
+

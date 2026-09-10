@@ -1,0 +1,28 @@
+import 'package:waste2taste/core/constants/api_endpoints.dart';
+
+abstract class ApiUrls {
+  static const baseUrl = 'http://localhost:5199';
+  static const signupUrl = "$baseUrl${ApiEndPoints.signupEndPoint}";
+  static const loginUrl = "$baseUrl${ApiEndPoints.loginEndPoint}";
+  static const sendResetPasswordCode =
+      "$baseUrl${ApiEndPoints.sendResetPasswordCodeEndPoint}";
+  static const verifyEmail = "$baseUrl${ApiEndPoints.verifyEmailEndPoint}";
+  static const resetPassword = "$baseUrl${ApiEndPoints.resetPasswordEndPoint}";
+  static const profile = "$baseUrl${ApiEndPoints.profileEndPoint}";
+  static const productsUrl = "$baseUrl${ApiEndPoints.productsEndPoint}";
+  static const editProfile = "$baseUrl${ApiEndPoints.editProfileEndPoint}";
+  static const changePassword =
+      "$baseUrl${ApiEndPoints.changePasswordEndPoint}";
+  static const deleteAccount = "$baseUrl${ApiEndPoints.deleteAccountEndPoint}";
+  static String getReviews(String productId) =>
+      "$baseUrl${ApiEndPoints.getReviewsEndPoint}$productId";
+  static const addReview = "$baseUrl${ApiEndPoints.addReviewEndPoint}";
+  static const deleteReview = "$baseUrl${ApiEndPoints.deleteReviewEndPoint}";
+  static const reportUrl = "$baseUrl${ApiEndPoints.reportEndPoint}";
+  static const reserveOrderUrl = "$baseUrl${ApiEndPoints.reserveOrderEndPoint}";
+  static const myOrdersUrl = "$baseUrl${ApiEndPoints.myOrdersEndPoint}";
+  static const myFavoritesUrl = "$baseUrl${ApiEndPoints.myFavoritesEndPoint}";
+  static String getProductByIdUrl(String productId) =>
+      "$baseUrl${ApiEndPoints.getProductByIdEndPoint(productId)}";
+  static const sendSupport = "$baseUrl${ApiEndPoints.sendSupportEndPoint}";
+}

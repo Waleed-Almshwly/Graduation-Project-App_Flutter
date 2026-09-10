@@ -1,0 +1,14 @@
+import 'package:flutter/material.dart';
+import 'auth_background_circles.dart';
+import 'login_view_body_components.dart';
+
+class LoginViewBody extends StatelessWidget {
+  const LoginViewBody({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: const [AuthBackgroundCircles(), LoginViewBodyComponents()],
+    );
+  }
+}

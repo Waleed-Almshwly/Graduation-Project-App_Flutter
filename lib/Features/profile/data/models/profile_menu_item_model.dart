@@ -1,0 +1,97 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:waste2taste/core/database/flutter_secure_storage_service.dart';
+import 'package:waste2taste/core/functions/setup_service_locator.dart';
+import 'package:waste2taste/core/utils/app_router.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/extensions/app_localization_extention.dart';
+import '../../../../core/utils/app_routes.dart';
+
+class ProfileMenuItemModel {
+  final IconData icon;
+  final String Function(BuildContext context) label;
+  final Color color;
+  final Function(BuildContext context) onTap;
+
+  ProfileMenuItemModel({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+}
+
+final List<ProfileMenuItemModel> myActivity = [
+  ProfileMenuItemModel(
+    icon: LucideIcons.shoppingBag,
+    label: (context) => context.loc.myOrders,
+    color: Colors.blue,
+    onTap: (context) => GoRouter.of(context).push(AppRoutes.ordersView),
+  ),
+  ProfileMenuItemModel(
+    icon: LucideIcons.heart,
+    label: (context) => context.loc.savedOffers,
+    color: Colors.red,
+    onTap: (context) => GoRouter.of(context).push(AppRoutes.savedOrdersView),
+  ),
+];
+final List<ProfileMenuItemModel> generalSettings = [
+  ProfileMenuItemModel(
+    icon: LucideIcons.user,
+    label: (context) => context.loc.editProfile,
+    color: AppColors.primary,
+    onTap: (context) => GoRouter.of(context).push(AppRoutes.editProfileView),
+  ),
+  ProfileMenuItemModel(
+    icon: LucideIcons.settings,
+    label: (context) => context.loc.generalSettings,
+    color: Colors.grey,
+    onTap: (context) =>
+        GoRouter.of(context).push(AppRoutes.generalSettingsView),
+  ),
+  ProfileMenuItemModel(
+    icon: LucideIcons.helpCircle,
+    label: (context) => context.loc.helpSupport,
+    color: Colors.orange,
+    onTap: (context) => GoRouter.of(context).push(AppRoutes.helpAndSupportView),
+  ),
+];
+
+final List<ProfileMenuItemModel> accountAuth = [
+  ProfileMenuItemModel(
+    icon: LucideIcons.logOut,
+    label: (context) => context.loc.logOut,
+    color: Colors.red,
+    onTap: (context) {
+      showDialog(
+        context: context,
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: Text(context.loc.logOut),
+            content: Text(context.loc.logOutConfirmation),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: Text(context.loc.cancel),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(dialogContext);
+                  await getIt
+                      .get<FlutterSecureStorageService>()
+                      .clearAuthToken();
+                  AppRouter.logout();
+                },
+                child: Text(
+                  context.loc.logOut,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  ),
+];

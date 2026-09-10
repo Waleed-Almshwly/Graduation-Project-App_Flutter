@@ -1,0 +1,15 @@
+import 'package:dartz/dartz.dart';
+import 'package:waste2taste/core/errors/failure.dart';
+import 'package:waste2taste/Features/home/domain/entities/product_entity.dart';
+import 'package:waste2taste/Features/products/data/models/add_review_model.dart';
+import 'package:waste2taste/Features/products/data/models/add_review_response_model.dart';
+import 'package:waste2taste/Features/products/domain/entities/review_entity.dart';
+
+abstract class ProductRepo {
+  Future<Either<Failure, List<ReviewEntity>>> getProductReviews(String productId);
+  Future<Either<Failure, AddReviewResponseModel>> addReview(AddReviewModel review);
+  Future<Either<Failure, void>> deleteReview(int reviewId);
+  Future<Either<Failure, void>> toggleFavorite(String productId);
+  Future<Either<Failure, List<ProductEntity>>> getFavoriteProducts();
+  Future<Either<Failure, ProductEntity>> getProductById(String productId);
+}

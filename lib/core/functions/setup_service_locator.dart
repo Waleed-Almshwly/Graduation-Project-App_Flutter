@@ -1,0 +1,216 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:waste2taste/Features/auth/data/data_sources/auth_remote_data_source.dart';
+import 'package:waste2taste/Features/auth/data/repos/auth_repo_impl.dart';
+import 'package:waste2taste/Features/auth/domain/use_cases/login_usecase.dart';
+import 'package:waste2taste/Features/auth/domain/use_cases/reset_pass_usecase.dart';
+import 'package:waste2taste/Features/auth/domain/use_cases/send_reset_password_code_usecase.dart';
+import 'package:waste2taste/Features/auth/domain/use_cases/signup_usecase.dart';
+import 'package:waste2taste/Features/auth/domain/use_cases/verify_email_usecase.dart';
+import 'package:waste2taste/Features/home/data/data_sources/home_remote_data_source.dart';
+import 'package:waste2taste/Features/home/data/repos/home_repo_impl.dart';
+import 'package:waste2taste/Features/home/domain/use_cases/get_profile_usecase.dart';
+import 'package:waste2taste/Features/home/domain/use_cases/get_user_location_usecase.dart';
+import 'package:waste2taste/Features/home/domain/use_cases/get_products_usecase.dart';
+import 'package:waste2taste/Features/home/presentation/manager/get_products_cubit/get_products_cubit.dart';
+import 'package:waste2taste/Features/profile/data/datasources/profile_remote_data_source.dart';
+import 'package:waste2taste/Features/profile/data/repos/profile_repo_impl.dart';
+import 'package:waste2taste/Features/profile/domain/usecases/edit_profile_usecase.dart';
+import 'package:waste2taste/Features/profile/domain/usecases/change_password_usecase.dart';
+import 'package:waste2taste/Features/profile/domain/usecases/delete_account_usecase.dart';
+import 'package:waste2taste/Features/profile/domain/usecases/send_support_request_usecase.dart';
+import 'package:waste2taste/Features/profile/presentation/manager/send_support_request_cubit/send_support_request_cubit.dart';
+import 'package:waste2taste/Features/products/data/data_sources/product_remote_data_source.dart';
+import 'package:waste2taste/Features/products/data/repos/product_repo_impl.dart';
+import 'package:waste2taste/Features/products/domain/use_cases/get_product_reviews_usecase.dart';
+import 'package:waste2taste/Features/products/domain/use_cases/add_review_usecase.dart';
+import 'package:waste2taste/Features/products/domain/use_cases/delete_review_usecase.dart';
+import 'package:waste2taste/Features/products/presentation/manager/add_review_cubit/add_review_cubit.dart';
+import 'package:waste2taste/Features/products/presentation/manager/delete_review_cubit/delete_review_cubit.dart';
+import 'package:waste2taste/Features/products/domain/use_cases/toggle_favorite_usecase.dart';
+import 'package:waste2taste/Features/products/domain/use_cases/get_favorite_products_usecase.dart';
+import 'package:waste2taste/Features/products/domain/use_cases/get_product_by_id_usecase.dart';
+import 'package:waste2taste/Features/products/presentation/manager/get_favorite_products_cubit/get_favorite_products_cubit.dart';
+import 'package:waste2taste/Features/products/presentation/manager/toggle_favorite_cubit/toggle_favorite_cubit.dart';
+import 'package:waste2taste/Features/products/presentation/manager/get_product_by_id_cubit/get_product_by_id_cubit.dart';
+import 'package:waste2taste/Features/splash/data/repos/onboarding_repo_impl.dart';
+import 'package:waste2taste/Features/splash/domain/repos/onboarding_repo.dart';
+import 'package:waste2taste/core/database/flutter_secure_storage_service.dart';
+import 'package:waste2taste/core/database/pref_service.dart';
+import 'package:waste2taste/core/services/api_service.dart';
+import 'package:waste2taste/core/cubits/theme_cubit/theme_cubit.dart';
+import 'package:waste2taste/core/services/location_service.dart';
+import 'package:waste2taste/Features/report/data/data_sources/report_remote_data_source.dart';
+import 'package:waste2taste/Features/report/data/repos/report_repo_impl.dart';
+import 'package:waste2taste/Features/report/domain/use_cases/report_vendor_usecase.dart';
+import 'package:waste2taste/Features/report/presentation/manager/report_vendor_cubit/report_vendor_cubit.dart';
+
+import 'package:waste2taste/Features/orders/data/data_sources/order_remote_data_source.dart';
+import 'package:waste2taste/Features/orders/data/repos/order_repo_impl.dart';
+import 'package:waste2taste/Features/orders/domain/use_cases/reserve_order_usecase.dart';
+import 'package:waste2taste/Features/orders/domain/use_cases/get_my_orders_usecase.dart';
+import 'package:waste2taste/Features/orders/presentation/manager/reserve_order_cubit/reserve_order_cubit.dart';
+import 'package:waste2taste/Features/orders/presentation/manager/get_my_orders_cubit/get_my_orders_cubit.dart';
+
+GetIt getIt = GetIt.instance;
+
+Future<void> setupServiceLocator() async {
+  final pref = await SharedPreferences.getInstance();
+  getIt.registerLazySingleton<SharedPreferences>(() => pref);
+  getIt.registerLazySingleton<PrefsService>(
+    () => PrefsService(getIt.get<SharedPreferences>()),
+  );
+  getIt.registerLazySingleton<LocationService>(() => LocationService());
+
+  getIt.registerLazySingleton<FlutterSecureStorage>(
+    () => const FlutterSecureStorage(),
+  );
+  getIt.registerLazySingleton<FlutterSecureStorageService>(
+    () => FlutterSecureStorageServiceImpl(
+      storage: getIt.get<FlutterSecureStorage>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<ThemeCubit>(() => ThemeCubit());
+  getIt.registerLazySingleton<OnboardingRepo>(() => OnboardingRepoImpl());
+  getIt.registerLazySingleton<ApiService>(() => ApiService());
+  getIt.registerLazySingleton<AuthRepoImpl>(
+    () => AuthRepoImpl(
+      authRemoteDataSource: AuthRemoteDataSourceImpl(getIt.get<ApiService>()),
+    ),
+  );
+
+  ///usecases
+  getIt.registerLazySingleton<SignupUsecase>(
+    () => SignupUsecase(authRepo: getIt.get<AuthRepoImpl>()),
+  );
+  getIt.registerLazySingleton<SendResetPasswordCodeUsecase>(
+    () => SendResetPasswordCodeUsecase(authRepo: getIt.get<AuthRepoImpl>()),
+  );
+  getIt.registerLazySingleton<VerifyEmailUsecase>(
+    () => VerifyEmailUsecase(authRepo: getIt.get<AuthRepoImpl>()),
+  );
+  getIt.registerLazySingleton<ResetPassUsecase>(
+    () => ResetPassUsecase(authRepo: getIt.get<AuthRepoImpl>()),
+  );
+  getIt.registerLazySingleton<LoginUsecase>(
+    () => LoginUsecase(authRepo: getIt.get<AuthRepoImpl>()),
+  );
+  getIt.registerLazySingleton<HomeRemoteDataSource>(
+    () => HomeRemoteDataSourceImpl(getIt.get<ApiService>()),
+  );
+  getIt.registerLazySingleton<HomeRepoImpl>(
+    () => HomeRepoImpl(homeRemoteDataSource: getIt.get<HomeRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<GetProfileUsecase>(
+    () => GetProfileUsecase(homeRepo: getIt.get<HomeRepoImpl>()),
+  );
+  getIt.registerLazySingleton<GetUserLocationUsecase>(
+    () => GetUserLocationUsecase(locationService: getIt.get<LocationService>()),
+  );
+  getIt.registerLazySingleton<GetProductsUsecase>(
+    () => GetProductsUsecase(homeRepo: getIt.get<HomeRepoImpl>()),
+  );
+  getIt.registerLazySingleton<GetProductsCubit>(
+    () => GetProductsCubit(getIt.get<GetProductsUsecase>()),
+  );
+  getIt.registerLazySingleton<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSourceImpl(getIt.get<ApiService>()),
+  );
+  getIt.registerLazySingleton<ProfileRepoImpl>(
+    () => ProfileRepoImpl(
+      profileRemoteDataSource: getIt.get<ProfileRemoteDataSource>(),
+    ),
+  );
+  getIt.registerLazySingleton<EditProfileUsecase>(
+    () => EditProfileUsecase(profileRepo: getIt.get<ProfileRepoImpl>()),
+  );
+  getIt.registerLazySingleton<ChangePasswordUsecase>(
+    () => ChangePasswordUsecase(getIt.get<ProfileRepoImpl>()),
+  );
+  getIt.registerLazySingleton<DeleteAccountUsecase>(
+    () => DeleteAccountUsecase(getIt.get<ProfileRepoImpl>()),
+  );
+  getIt.registerLazySingleton<SendSupportRequestUsecase>(
+    () => SendSupportRequestUsecase(getIt.get<ProfileRepoImpl>()),
+  );
+  getIt.registerFactory<SendSupportRequestCubit>(
+    () => SendSupportRequestCubit(getIt.get<SendSupportRequestUsecase>()),
+  );
+
+  getIt.registerLazySingleton<ProductRemoteDataSource>(
+    () => ProductRemoteDataSourceImpl(getIt.get<ApiService>()),
+  );
+  getIt.registerLazySingleton<ProductRepoImpl>(
+    () => ProductRepoImpl(
+      productRemoteDataSource: getIt.get<ProductRemoteDataSource>(),
+    ),
+  );
+  getIt.registerLazySingleton<GetProductReviewsUsecase>(
+    () => GetProductReviewsUsecase(productRepo: getIt.get<ProductRepoImpl>()),
+  );
+  getIt.registerLazySingleton<AddReviewUseCase>(
+    () => AddReviewUseCase(productRepo: getIt.get<ProductRepoImpl>()),
+  );
+  getIt.registerLazySingleton<DeleteReviewUseCase>(
+    () => DeleteReviewUseCase(productRepo: getIt.get<ProductRepoImpl>()),
+  );
+  getIt.registerLazySingleton<ToggleFavoriteUsecase>(
+    () => ToggleFavoriteUsecase(productRepo: getIt.get<ProductRepoImpl>()),
+  );
+  getIt.registerLazySingleton<GetFavoriteProductsUsecase>(
+    () => GetFavoriteProductsUsecase(productRepo: getIt.get<ProductRepoImpl>()),
+  );
+  getIt.registerLazySingleton<GetProductByIdUsecase>(
+    () => GetProductByIdUsecase(getIt.get<ProductRepoImpl>()),
+  );
+  getIt.registerFactory<AddReviewCubit>(
+    () => AddReviewCubit(addReviewUseCase: getIt.get<AddReviewUseCase>()),
+  );
+  getIt.registerFactory<GetProductByIdCubit>(
+    () => GetProductByIdCubit(getIt.get<GetProductByIdUsecase>()),
+  );
+  getIt.registerFactory<DeleteReviewCubit>(
+    () => DeleteReviewCubit(deleteReviewUseCase: getIt.get<DeleteReviewUseCase>()),
+  );
+  getIt.registerFactory<ToggleFavoriteCubit>(
+    () => ToggleFavoriteCubit(getIt.get<ToggleFavoriteUsecase>()),
+  );
+  getIt.registerFactory<GetFavoriteProductsCubit>(
+    () => GetFavoriteProductsCubit(getIt.get<GetFavoriteProductsUsecase>()),
+  );
+  getIt.registerLazySingleton<ReportRemoteDataSource>(
+    () => ReportRemoteDataSourceImpl(getIt.get<ApiService>()),
+  );
+  getIt.registerLazySingleton<ReportRepoImpl>(
+    () => ReportRepoImpl(
+      reportRemoteDataSource: getIt.get<ReportRemoteDataSource>(),
+    ),
+  );
+  getIt.registerLazySingleton<ReportVendorUsecase>(
+    () => ReportVendorUsecase(reportRepo: getIt.get<ReportRepoImpl>()),
+  );
+  getIt.registerFactory<ReportVendorCubit>(
+    () => ReportVendorCubit(getIt.get<ReportVendorUsecase>()),
+  );
+
+  getIt.registerLazySingleton<OrderRemoteDataSource>(
+    () => OrderRemoteDataSourceImpl(getIt.get<ApiService>()),
+  );
+  getIt.registerLazySingleton<OrderRepoImpl>(
+    () => OrderRepoImpl(orderRemoteDataSource: getIt.get<OrderRemoteDataSource>()),
+  );
+  getIt.registerLazySingleton<ReserveOrderUseCase>(
+    () => ReserveOrderUseCase(orderRepo: getIt.get<OrderRepoImpl>()),
+  );
+  getIt.registerLazySingleton<GetMyOrdersUseCase>(
+    () => GetMyOrdersUseCase(orderRepo: getIt.get<OrderRepoImpl>()),
+  );
+  getIt.registerFactory<ReserveOrderCubit>(
+    () => ReserveOrderCubit(reserveOrderUseCase: getIt.get<ReserveOrderUseCase>()),
+  );
+  getIt.registerLazySingleton<GetMyOrdersCubit>(
+    () => GetMyOrdersCubit(getIt.get<GetMyOrdersUseCase>()),
+  );
+}
