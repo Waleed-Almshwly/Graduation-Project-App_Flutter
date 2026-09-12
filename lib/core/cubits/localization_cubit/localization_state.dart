@@ -7,9 +7,12 @@ sealed class LocalizationState {
   const LocalizationState({required this.locale});
 }
 
+
 final class LocalizationInitial extends LocalizationState {
-  const LocalizationInitial() : super(locale: const Locale('en'));
+  const LocalizationInitial() : super(locale: const Locale
+  ('en'));
 }
+
 
 final class LocalizationChanged extends LocalizationState {
   const LocalizationChanged({required super.locale});

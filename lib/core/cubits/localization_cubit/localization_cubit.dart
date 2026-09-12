@@ -6,8 +6,9 @@ import 'package:waste2taste/core/constants/keys.dart';
 import 'package:waste2taste/core/functions/setup_service_locator.dart';
 
 import '../../database/pref_service.dart';
-
 part 'localization_state.dart';
+
+
 
 class LocalizationCubit extends Cubit<LocalizationState> {
   LocalizationCubit() : super(LocalizationInitial()) {
